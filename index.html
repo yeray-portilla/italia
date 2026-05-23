@@ -6,6 +6,10 @@
     <title>Plan de Viaje: Italia Norte (7 Pax)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -43,6 +47,9 @@
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* Ajuste para que el mapa no se ponga por encima del menú */
+        #map { z-index: 10; }
     </style>
 </head>
 <body class="antialiased">
@@ -51,7 +58,7 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <span class="font-bold text-xl tracking-tight text-stone-800">Operación Italia</span>
+                    <span class="font-bold text-xl tracking-tight text-stone-800">Operacion Italia</span>
                 </div>
                 <div class="flex items-center space-x-4 text-sm font-medium">
                     <span class="bg-stone-100 px-3 py-1 rounded-full border border-stone-200">7 Personas</span>
@@ -59,11 +66,11 @@
                 </div>
             </div>
             <div class="flex space-x-6 overflow-x-auto" id="nav-tabs">
-                <button onclick="switchTab('itinerario', this)" class="pb-3 pt-2 whitespace-nowrap tab-active transition-colors duration-200">Itinerario General</button>
-                <button onclick="switchTab('dolomitas', this)" class="pb-3 pt-2 whitespace-nowrap text-stone-500 hover:text-stone-800 transition-colors duration-200">Dolomitas (Día 1)</button>
-                <button onclick="switchTab('rimini', this)" class="pb-3 pt-2 whitespace-nowrap text-stone-500 hover:text-stone-800 transition-colors duration-200">Rímini (Días 1-5)</button>
-                <button onclick="switchTab('venecia', this)" class="pb-3 pt-2 whitespace-nowrap text-stone-500 hover:text-stone-800 transition-colors duration-200">Venecia (Día 5-6)</button>
-                <button onclick="switchTab('datos', this)" class="pb-3 pt-2 whitespace-nowrap text-stone-500 hover:text-stone-800 transition-colors duration-200">Logística</button>
+                <button onclick="switchTab('itinerario', this)" class="pb-3 pt-2 whitespace-nowrap tab-active transition-colors duration-200">El Plan General</button>
+                <button onclick="switchTab('dolomitas', this)" class="pb-3 pt-2 whitespace-nowrap text-stone-500 hover:text-stone-800 transition-colors duration-200">Dia 1: Dolomitas</button>
+                <button onclick="switchTab('rimini', this)" class="pb-3 pt-2 whitespace-nowrap text-stone-500 hover:text-stone-800 transition-colors duration-200">Dias 1-5: Rimini / Fiesta</button>
+                <button onclick="switchTab('venecia', this)" class="pb-3 pt-2 whitespace-nowrap text-stone-500 hover:text-stone-800 transition-colors duration-200">Dia 5-6: Venecia</button>
+                <button onclick="switchTab('datos', this)" class="pb-3 pt-2 whitespace-nowrap text-stone-500 hover:text-stone-800 transition-colors duration-200">Logistica y Mapa Interactivo</button>
             </div>
         </div>
     </nav>
@@ -72,7 +79,9 @@
         
         <section id="itinerario" class="section-show">
             <div class="mb-8">
-                <h1 class="text-3xl font-bold mb-2">Visión General del Viaje</h1>
+                <h1 class="text-3xl font-bold mb-2">Vision General del Viaje</h1>
+                <p class="text-stone-600 mt-2">La idea de este viaje es brutal: empezamos a tope de adrenalina por las montañas de los Dolomitas para sacar unos fotones, y luego bajamos a la costa de Rimini a quemar la noche y tirarnos en la playa. Por ultimo, una visita rapida a Venecia y para casa.</p>
+                <p class="text-stone-600 mt-2"><strong>La jugada maestra:</strong> Alquilar coches al llegar al aeropuerto de Venecia y devolverlos el mismo dia o al dia siguiente en Rimini. Nos ahorramos unos 35 pavos diarios de parking en Venecia y nos quitamos el marron de aparcar 2 coches en la costa.</p>
             </div>
 
             <div class="space-y-4">
@@ -83,8 +92,7 @@
                         </div>
                         <div>
                             <h3 class="text-xl font-bold mb-1">Llegada, Montaña y Carretera</h3>
-                            <p class="text-stone-600 mb-2">Aeropuerto Venecia ➔ Alquiler 2 Coches ➔ Ruta rápida por Dolomitas ➔ Conducción hasta Rímini (Llegada tarde/noche).</p>
-                            <span class="inline-block bg-teal-50 text-teal-700 text-xs px-2 py-1 rounded">Día intenso de conducción</span>
+                            <p class="text-stone-600 mb-2">Aeropuerto Venecia -> Alquiler 2 Coches -> Ruta rapida por Dolomitas para las vistas -> Bajada a Rimini (llegamos a ultima hora de la tarde).</p>
                         </div>
                     </div>
                 </div>
@@ -94,9 +102,8 @@
                             <span class="text-sm font-bold text-orange-600 uppercase tracking-wider">2 - 4 Julio</span>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold mb-1">Base en Rímini</h3>
-                            <p class="text-stone-600 mb-2">Devolución de coches a la llegada o el día 2. Días de playa, turismo local, gastronomía de Emilia-Romaña y mucha fiesta por la noche.</p>
-                            <span class="inline-block bg-stone-100 text-stone-700 text-xs px-2 py-1 rounded">Relax y Ocio</span>
+                            <h3 class="text-xl font-bold mb-1">Campamento Base: Playita y Fiesta</h3>
+                            <p class="text-stone-600 mb-2">Devolvemos los coches. Dias para dormir la mona en la playa, comer pizzas increibles, pasarnos por San Marino y reventar la pista en las mejores discotecas de Italia.</p>
                         </div>
                     </div>
                 </div>
@@ -106,8 +113,8 @@
                             <span class="text-sm font-bold text-orange-600 uppercase tracking-wider">5 Julio</span>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold mb-1">Retorno a los Canales</h3>
-                            <p class="text-stone-600">Mañana en Rímini. Sobre las 14:00/15:00 Tren de Rímini a Venecia (Santa Lucia). Tarde y noche de turismo express por Venecia.</p>
+                            <h3 class="text-xl font-bold mb-1">De vuelta a los Canales</h3>
+                            <p class="text-stone-600">Pillamos un tren de Rimini a Venecia despues de comer. Dejamos las mochilas en una consigna 24h y nos damos un paseo espectacular por Venecia de noche sin guiris.</p>
                         </div>
                     </div>
                 </div>
@@ -117,8 +124,8 @@
                             <span class="text-sm font-bold text-orange-600 uppercase tracking-wider">6 Julio</span>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold mb-1">Madrugón y Vuelta</h3>
-                            <p class="text-stone-600">Desplazamiento nocturno/madrugada al aeropuerto de Venecia (Marco Polo o Treviso) para nuestro vuelo de las 06:00 AM.</p>
+                            <h3 class="text-xl font-bold mb-1">Madrugon nivel Dios</h3>
+                            <p class="text-stone-600">A las 3:30 de la mañana cogemos dos taxis desde Venecia al aeropuerto para no perder el vuelo de las 6:00. Precision suiza.</p>
                         </div>
                     </div>
                 </div>
@@ -127,94 +134,165 @@
 
         <section id="dolomitas" class="section-hide">
             <div class="mb-8">
-                <h1 class="text-3xl font-bold mb-2">Día 1: Incursión en Dolomitas</h1>
-                <p class="text-stone-600 max-w-3xl">Este módulo detalla nuestro primer día. Queremos subir a Dolomitas directamente desde el aeropuerto y luego bajar a Rímini. <strong>Ojo con los tiempos:</strong> es un día de muchas horas de coche, pero factible si madrugamos.</p>
+                <h1 class="text-3xl font-bold mb-2">Dia 1: Incursion Express en los Dolomitas</h1>
+                <p class="text-stone-600 max-w-3xl">El primer dia es cañero porque hay muchas horas de coche, pero merece la pena. Subimos directos a los Dolomitas orientales para flipar con el paisaje y luego bajamos pitando a Rimini.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h3 class="text-xl font-bold mb-2">Tiempos de Conducción Estimados</h3>
+                    <h3 class="text-xl font-bold mb-2">Tiempos de Carretera</h3>
                     <ul class="space-y-3 text-stone-600">
                         <li class="flex justify-between border-b border-stone-100 pb-2">
-                            <span>Aeropuerto VCE ➔ Cortina d'Ampezzo</span>
+                            <span>Aeropuerto VCE -> Cortina d'Ampezzo</span>
                             <span class="font-bold text-stone-800">2h 15m</span>
                         </li>
                         <li class="flex justify-between border-b border-stone-100 pb-2">
-                            <span>Paradas y turismo en coche</span>
+                            <span>Turismo y fotazas</span>
                             <span class="font-bold text-stone-800">3h - 4h</span>
                         </li>
                         <li class="flex justify-between border-b border-stone-100 pb-2">
-                            <span>Cortina ➔ Rímini (Directo por Autopista)</span>
+                            <span>Cortina -> Rimini (Por Autopista)</span>
                             <span class="font-bold text-orange-600">4h 30m</span>
                         </li>
                     </ul>
                     <div class="mt-4 p-3 bg-red-50 text-red-800 rounded text-sm">
-                        <strong>Advertencia:</strong> Llegaremos a Rímini bastante cansados. Calculemos llegar sobre las 20:00 - 21:00 para cenar directo.
+                        <strong>Aviso:</strong> Vamos a llegar a Rimini cansados. Llegaremos sobre las 20:00 - 21:00, lo justo para hacer el check-in, soltar maletas y salir a cenar y tomar las primeras cervezas.
                     </div>
                 </div>
 
                 <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h3 class="text-xl font-bold mb-2">Qué ver (Ruta Express)</h3>
-                    <p class="text-sm text-stone-500 mb-4">Al no tener tiempo para grandes rutas de senderismo, centrémonos en vistas desde el coche y paseos cortos:</p>
+                    <h3 class="text-xl font-bold mb-2">El plan en la montaña (cero sudor)</h3>
+                    <p class="text-sm text-stone-500 mb-4">No vamos de senderismo duro, vamos a lo espectacular y facil:</p>
                     <ul class="space-y-2 text-stone-700 list-disc list-inside">
-                        <li><strong>Paso Giau:</strong> Carretera de montaña con curvas y vistas espectaculares para fotos de grupo.</li>
-                        <li><strong>Cortina d'Ampezzo:</strong> Parada para un café rápido y estirar las piernas en el pueblo.</li>
-                        <li><strong>Lago Misurina o Lago di Braies:</strong> Si nos da tiempo, Braies es el más famoso (requiere desvío), Misurina pilla mejor de paso si vamos hacia Tre Cime.</li>
+                        <li><strong>Cinque Torri / Lagazuoi:</strong> Subimos en teleferico. Cero esfuerzo, vistas de infarto y tuneles excavados en la roca de la Primera Guerra Mundial.</li>
+                        <li><strong>Lago Misurina:</strong> Un lago que parece un espejo reflejando las montañas.</li>
+                        <li><strong>Tre Cime di Lavaredo:</strong> La foto obligada del viaje. Subimos en coche por el peaje hasta el refugio y damos un paseo plano increible.</li>
                     </ul>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm mt-6 border border-stone-200">
+                <h3 class="text-xl font-bold mb-3">Donde dormir el Dia 1</h3>
+                <p class="text-sm text-stone-500 mb-4">Solo pasamos una noche aqui, asi que pillemos un hotel grande o unos apartamentos contiguos donde quepamos los 7 con parking para los dos coches.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-stone-50 rounded-xl p-4">
+                        <strong class="block text-sm text-stone-800">B&B Hotel Passo Tre Croci</strong>
+                        <p class="text-xs text-stone-600 mt-1">Super bien de precio, entramos todos, tienen parking y esta literalmente a 10 minutos de las Tre Cime.</p>
+                    </div>
+                    <div class="bg-stone-50 rounded-xl p-4">
+                        <strong class="block text-sm text-stone-800">Dolomiti Skyline</strong>
+                        <p class="text-xs text-stone-600 mt-1">Pleno centro de Cortina d'Ampezzo. Un apartamento enorme ideal para que el grupo este de charleta en el salon antes de dormir.</p>
+                    </div>
+                    <div class="bg-stone-50 rounded-xl p-4">
+                        <strong class="block text-sm text-stone-800">Hotel Sorapis</strong>
+                        <p class="text-xs text-stone-600 mt-1">En el Lago de Misurina. Abres la ventana y ves el agua. Muy bien situado para bajar a Rimini al dia siguiente.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section id="rimini" class="section-hide">
             <div class="mb-8">
-                <h1 class="text-3xl font-bold mb-2">Campamento Base: Rímini (Días 1-5)</h1>
-                <p class="text-stone-600 max-w-3xl">Aquí encontraremos todo lo necesario para nuestros días principales. Rímini no es solo playa; tiene un centro romano histórico, la mejor fiesta del Adriático y comida increíble. También detallo el tema del alojamiento y los coches.</p>
+                <h1 class="text-3xl font-bold mb-2">Campamento Base: Rimini y Riccione</h1>
+                <p class="text-stone-600 max-w-3xl">Esta es la parte central del viaje. Lo de devolver los coches nada mas llegar es vital: nos ahorramos una pasta y aqui con el bus nocturno "Blue Line" vamos a todos los sitios sobrados.</p>
             </div>
 
-            <div class="bg-teal-50 border border-teal-100 p-6 rounded-xl mb-8">
-                <h3 class="text-xl font-bold text-teal-800 mb-2">Alojamiento & Coches (7 Pax)</h3>
-                <p class="text-teal-900 mb-4"><strong>Estrategia clave:</strong> Si vamos a devolver el coche el Día 1 o 2 en Rímini, busquemos el Airbnb cerca de la estación de tren o en una zona con buena conexión de bus (Línea 11). Así estaremos conectados para ir a la fiesta y para ir a Venecia el día 5.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div class="bg-white p-4 rounded shadow-sm">
-                        <strong class="block mb-1 text-stone-800">Mejores zonas para el Airbnb:</strong>
-                        <ul class="list-disc list-inside text-stone-600">
-                            <li><strong>Marina Centro:</strong> El meollo. Cerca de playa, fiesta y restaurantes. Un poco más caro.</li>
-                            <li><strong>Rivazzurra o Marebello:</strong> Más al sur, muchos apartamentos grandes, más barato, lleno de jóvenes.</li>
-                        </ul>
+            <div class="bg-stone-900 text-white p-6 rounded-xl shadow-lg mb-8">
+                <h3 class="text-2xl font-bold mb-4 text-purple-400">La Locura Maxima: Las Mejores Discotecas</h3>
+                <p class="text-sm text-stone-300 mb-6">He descartado la morralla. Si quereis fiesta de verdad en Rimini y Riccione, los tiros van por aqui. Teneis estas ubicaciones en el mapa interactivo:</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-stone-800 p-4 rounded-lg border-l-4 border-orange-500">
+                        <h4 class="font-bold text-lg mb-1">1. Carnaby Club (Zona Rivazzurra)</h4>
+                        <p class="text-sm text-stone-300 mb-2">Son 3 pisos de pura fiesta con rollito internacional muy joven. Pinchan musica comercial, hip-hop, reggaeton y EDM. Entras con chanclas si quieres, es super informal y divertidisima.</p>
                     </div>
-                    <div class="bg-white p-4 rounded shadow-sm">
-                        <strong class="block mb-1 text-stone-800">El problema de los 2 Coches:</strong>
-                        Aparcar en Rímini en Julio es <strong>misión imposible</strong> o de pago. La idea de devolverlos nada más llegar a Rímini es excelente. Busquemos la oficina de alquiler en Google Maps y pillemos el Airbnb relativamente cerca.
+                    <div class="bg-stone-800 p-4 rounded-lg border-l-4 border-blue-500">
+                        <h4 class="font-bold text-lg mb-1">2. Altromondo Studios (Zona Miramare)</h4>
+                        <p class="text-sm text-stone-300 mb-2">Mitica desde 1967. Famosa por sus locas Fiestas de la Espuma y unos shows de laser que te vuelan la cabeza. Suelen traer a los mejores DJs de EDM del mundo.</p>
+                    </div>
+                    <div class="bg-stone-800 p-4 rounded-lg border-l-4 border-green-500">
+                        <h4 class="font-bold text-lg mb-1">3. Cocorico (Riccione)</h4>
+                        <p class="text-sm text-stone-300 mb-2">La mitica piramide de cristal. Si a alguno del grupo le gusta el Techno puro y duro, esto es un templo a nivel mundial. Espectacular ver amanecer ahi dentro.</p>
+                    </div>
+                    <div class="bg-stone-800 p-4 rounded-lg border-l-4 border-yellow-500">
+                        <h4 class="font-bold text-lg mb-1">4. Baia Imperiale (Gabicce Mare)</h4>
+                        <p class="text-sm text-stone-300 mb-2">Esta un poco mas al sur, pero hay que ir. Es una discoteca ambientada en el Imperio Romano con enormes columnas de marmol, estatuas, braseros y piscinas. Visualmente es la hostia.</p>
+                    </div>
+                    <div class="bg-stone-800 p-4 rounded-lg border-l-4 border-purple-500">
+                        <h4 class="font-bold text-lg mb-1">5. Peter Pan Club (Riccione)</h4>
+                        <p class="text-sm text-stone-300 mb-2">Una de las mas famosas de Italia. Situada en las colinas de Riccione. Tiene un ambiente un poco mas elegante y pinchan la mejor musica House y comercial. Mucho famoseo y postureo del bueno.</p>
+                    </div>
+                    <div class="bg-stone-800 p-4 rounded-lg border-l-4 border-pink-500">
+                        <h4 class="font-bold text-lg mb-1">6. Villa delle Rose (Misano)</h4>
+                        <p class="text-sm text-stone-300 mb-2">Un poco mas al sur de Riccione, es una discoteca al aire libre espectacular con forma de anfiteatro. Noches llenas de glamour, orientada a la musica electronica. De lo mas top de la costa.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-teal-50 border border-teal-100 p-6 rounded-xl mb-8">
+                <h3 class="text-xl font-bold text-teal-800 mb-2">Airbnbs y Apartamentos (La Logistica Perfecta)</h3>
+                <p class="text-teal-900 mb-4 text-sm">A ver, como quereis salir a esas discotecas, olvidaos del centro de Rimini. La jugada maestra es pillar alojamiento en el sur (Miramare, Rivazzurra o Riccione). Estareis pegados a Altromondo y Carnaby, y la linea 11 de bus os lleva directos a Riccione. Aqui teneis 6 opciones top reales para 7 personas:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-teal-200">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-600">Miramare / Junto a Altromondo</span>
+                        <h4 class="font-bold text-stone-800 mt-1">Nero D'Avorio Appartamenti</h4>
+                        <span class="block bg-yellow-50 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full w-fit mt-1 mb-2">Nota: 4.6</span>
+                        <p class="text-xs text-stone-600 mb-3">Estais literalmente al lado de la discoteca Altromondo Studios. Tienen piscina, rollo muy moderno, abierto 24h y apartamentos super amplios donde cabeis los 7.</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-teal-200">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-600">Rivazzurra / Zona Carnaby</span>
+                        <h4 class="font-bold text-stone-800 mt-1">Appartamenti Leone</h4>
+                        <span class="block bg-yellow-50 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full w-fit mt-1 mb-2">Nota: 4.4</span>
+                        <p class="text-xs text-stone-600 mb-3">Ubicacion brutal si quereis ir andando de vuelta del Carnaby Club. Tienen buenos precios, ideal para un grupo joven que no quiere gastar el presupuesto en lujos.</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-teal-200">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-600">Riccione / Zona Cocorico</span>
+                        <h4 class="font-bold text-stone-800 mt-1">Residence Lungomare</h4>
+                        <span class="block bg-yellow-50 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full w-fit mt-1 mb-2">Nota: 4.8</span>
+                        <p class="text-xs text-stone-600 mb-3">Si preferis el pijerio de Riccione y estar mas cerca de la piramide de Cocorico o el Peter Pan, estos apartamentos estan increibles, limpios y a un paso del mar.</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-teal-200">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-600">Rivazzurra / Zona Carnaby</span>
+                        <h4 class="font-bold text-stone-800 mt-1">Residence Boheme</h4>
+                        <span class="block bg-yellow-50 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full w-fit mt-1 mb-2">Nota: 4.8</span>
+                        <p class="text-xs text-stone-600 mb-3">Super recomendado para grupos jovenes. Apartamentos grandes con terraza, tienen parking gratuito por si acaso, y esta literalmente en la misma zona de fiesta del Carnaby.</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-teal-200">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-600">Marebello / Zona Media</span>
+                        <h4 class="font-bold text-stone-800 mt-1">Residence Acqua Suite Marina</h4>
+                        <span class="block bg-yellow-50 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full w-fit mt-1 mb-2">Nota: 4.6</span>
+                        <p class="text-xs text-stone-600 mb-3">Apartamentos limpios, comodos y el personal es super flexible con los grupos. Bien conectado con el bus de linea nocturno para bajar a Riccione de madrugada.</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-teal-200">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-600">Marina Centro / Zona Norte</span>
+                        <h4 class="font-bold text-stone-800 mt-1">Residence Rimini Bay</h4>
+                        <span class="block bg-yellow-50 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full w-fit mt-1 mb-2">Nota: 4.7</span>
+                        <p class="text-xs text-stone-600 mb-3">Si preferis estar cerca del centro historico de Rimini de dia y del puerto. Tienen aticos con terraza muy grandes. Perfecto para el tardeo de esa zona.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-stone-300">
-                    <h3 class="font-bold text-lg mb-3">Qué Ver</h3>
+                    <h3 class="font-bold text-lg mb-3">Que ver y comer de dia</h3>
                     <ul class="space-y-3 text-stone-600 text-sm">
-                        <li><strong>Centro Histórico:</strong> Rímini fue romana. Tenemos que ver el <em>Arco de Augusto</em> y el <em>Puente de Tiberio</em> (foto obligada).</li>
-                        <li><strong>Barrio San Giuliano:</strong> Al cruzar el puente. Calles de colores, murales dedicados a Federico Fellini. Genial para tomar algo al atardecer.</li>
-                        <li><strong>Piazza Cavour:</strong> El centro de la vida social de día.</li>
+                        <li><strong>La Piadina Romagnola:</strong> Pillaos una piadina en sitios de la calle (recomendado: Casina del Bosco). Es pan caliente relleno de prosciutto, rucula y un queso cremoso de alli. Barato y resucita a un muerto.</li>
+                        <li><strong>Paseo Cultural rapido:</strong> Rimini tiene el Arco de Augusto (27 a.C.) y el Puente de Tiberio intacto desde hace 2000 años. Paseito de una horita y al Borgo San Giuliano a tomar una birra.</li>
+                        <li><strong>Excursion a San Marino:</strong> Obligatorio un dia por la mañana. Se coge un bus de 5 pavos en la estacion de Rimini. Es un pais diminuto encima de un monte lleno de castillos medievales. En 4 horas lo veis y volveis para la fiesta.</li>
                     </ul>
                 </div>
 
                 <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-orange-400">
-                    <h3 class="font-bold text-lg mb-3">Dónde Comer</h3>
+                    <h3 class="font-bold text-lg mb-3">La Previa (El Tardeo)</h3>
+                    <p class="text-xs text-stone-500 mb-3">Antes de la discoteca a medianoche, hay que calentar motores:</p>
                     <ul class="space-y-3 text-stone-600 text-sm">
-                        <li><strong>Casina del Bosco:</strong> Obligatorio. Las mejores <em>Piadinas</em> (comida típica de la zona). Barato y buenísimo.</li>
-                        <li><strong>Trattoria La Mi Mama:</strong> Centro histórico. Pasta increíble, pidamos los Cappelletti al ragú o Strozzapreti.</li>
-                        <li><strong>Bounty:</strong> Marina Centro. Un clásico. Es un pub gigante con forma de barco pirata. Pizzas, hamburguesas y luego se lía la fiesta.</li>
-                    </ul>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-purple-500">
-                    <h3 class="font-bold text-lg mb-3">Dónde Salir (Fiesta)</h3>
-                    <p class="text-xs text-stone-500 mb-2">Hay buses nocturnos (Blue Line) que conectan las discotecas.</p>
-                    <ul class="space-y-3 text-stone-600 text-sm">
-                        <li><strong>Baia Imperiale:</strong> En Gabicce Mare (sur). Dicen que es de las discotecas más bonitas del mundo (temática romana, piscinas). <em>Imprescindible una noche</em>.</li>
-                        <li><strong>Carnaby Club / Altromondo Studios:</strong> Mucho ambiente joven e internacional. Altromondo es gigante, música electrónica.</li>
-                        <li><strong>Chiringuitos de Playa:</strong> Desde las 18:00 (Aperitivo) hasta la madrugada. Zona de Marano (Riccione).</li>
+                        <li><strong>Vecchia Pescheria:</strong> Unos soportales del siglo XVIII en el casco historico donde antiguamente se vendia pescado. Ahora esta lleno de bodegas y pubs a rebosar de gente tomando Spritz.</li>
+                        <li><strong>Chiringuitos en la playa (Marano):</strong> Sitios como Turquoise Beach Club o Samsara Beach (en Riccione) son clave para tomarse unas copas en la arena a ultima hora de la tarde mientras pincha un DJ.</li>
                     </ul>
                 </div>
             </div>
@@ -222,43 +300,41 @@
 
         <section id="venecia" class="section-hide">
             <div class="mb-8">
-                <h1 class="text-3xl font-bold mb-2">Día 5-6: Despedida en Venecia</h1>
-                <p class="text-stone-600 max-w-3xl">Llegamos en tren desde Rímini la tarde del día 5 y volamos el día 6 a las 06:00 AM. Este tramo requiere precisión logística. Aquí vemos cómo aprovechar la tarde y cómo sobrevivir la noche.</p>
+                <h1 class="text-3xl font-bold mb-2">Despedida en Venecia y Vuelta a Casa</h1>
+                <p class="text-stone-600 max-w-3xl">Las ultimas horas en Italia son clave para no cagarla con el vuelo de las 06:00 de la mañana. Esto tiene que salir medido.</p>
             </div>
 
             <div class="flex flex-col md:flex-row gap-8">
                 <div class="md:w-2/3">
-                    <h3 class="text-xl font-bold mb-4">Ruta Express Tarde-Noche (Día 5)</h3>
+                    <h3 class="text-xl font-bold mb-4">El Paseo Nocturno (Dia 5)</h3>
                     <div class="border-l-2 border-orange-300 ml-3 pl-4 space-y-6">
                         <div class="relative">
-                            <h4 class="font-bold">15:00 - Llegada a Venezia Santa Lucia</h4>
-                            <p class="text-sm text-stone-600">Nada más salir de la estación veremos el Gran Canal. Dejemos las mochilas en las consignas de la estación (fundamental si no cogemos hotel esa noche).</p>
+                            <h4 class="font-bold">El Tren desde Rimini</h4>
+                            <p class="text-sm text-stone-600">Comprad billetes en Trenitalia para el tren de media tarde (14:00 - 15:40) para aseguraros que vais los 7 juntos en el mismo vagon. En menos de 3 horas estais en Venezia Santa Lucia.</p>
+                        </div>
+                        <div class="relative bg-red-50 p-3 rounded border border-red-200">
+                            <h4 class="font-bold text-red-800">Aviso rojo: Las maletas</h4>
+                            <p class="text-sm text-red-800">Cargar con 7 maletas por los puentes de Venecia es un suplicio. Las taquillas normales cierran a las 22:00. Teneis que reservar un local 24/7 (usando la app de Bounce o Stasher) que este cerca de Piazzale Roma, para poder recoger las maletas a las 03:30 AM sin problemas.</p>
                         </div>
                         <div class="relative">
-                            <h4 class="font-bold">16:00 a 19:00 - Paseo Clásico</h4>
-                            <p class="text-sm text-stone-600">Caminemos perdiéndonos por los canales dirección Puente de Rialto. Desde ahí, hacia la Plaza San Marcos. No paguemos góndola, cojamos el <em>Traghetto</em> por 2€ para cruzar el canal si queremos la experiencia breve.</p>
-                        </div>
-                        <div class="relative">
-                            <h4 class="font-bold">20:00 - Cena estilo Bacari</h4>
-                            <p class="text-sm text-stone-600">No vayamos a restaurantes de turistas. Vayamos a la zona de <em>Cannaregio</em> o <em>San Polo</em> y hagamos ruta de "Bacari" (bares locales). Pidamos Spritz y "Cicchetti" (tapas venecianas). Recomendaciones: Cantina Do Mori o Al Timon.</p>
+                            <h4 class="font-bold">Cena y Copas en Venecia</h4>
+                            <p class="text-sm text-stone-600">Id andando hasta la Plaza San Marcos cruzando el puente de Rialto (de noche sin turistas es una pasada). Cenad tapeo tipico ("Cicchetti" y Spritz) en la zona de Cannaregio. Venecia cierra pronto, pero el <strong>Campo Santa Margherita</strong> esta lleno de universitarios y aguanta abierto hasta la 1:00 - 2:00 de la mañana.</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="md:w-1/3 bg-stone-800 text-stone-100 p-6 rounded-xl shadow-lg">
-                    <h3 class="text-xl font-bold mb-4 text-orange-400">Vuelo 06:00 AM</h3>
-                    <p class="text-sm mb-4">Un vuelo a las 6 AM implica estar en el aeropuerto a las 04:00 AM. <strong>Venecia muere a las 00:00.</strong></p>
+                    <h3 class="text-xl font-bold mb-4 text-orange-400">Vuelo 06:00 AM (Operacion Taxis)</h3>
+                    <p class="text-sm mb-4">A las 04:00 AM hay que estar facturando en el aeropuerto VCE. Ni se os ocurra intentar ir en bus nocturno, porque si falla uno estais vendidos.</p>
                     
-                    <h4 class="font-bold text-sm mb-2 text-stone-300">Opciones:</h4>
-                    <div class="space-y-4">
-                        <div class="bg-stone-700 p-3 rounded">
-                            <strong class="block text-sm">A. Modo Supervivencia (Gastar 0€):</strong>
-                            <p class="text-xs text-stone-300">Recuperar maletas antes de que cierre la consigna, coger el último bus nocturno (o tren a Mestre) hacia el aeropuerto y dormir en las sillas de la terminal.</p>
-                        </div>
-                        <div class="bg-stone-700 p-3 rounded">
-                            <strong class="block text-sm">B. Modo Cómodo:</strong>
-                            <p class="text-xs text-stone-300">Pillar un Airbnb barato solo para esa noche cerca de la estación de <strong>Mestre</strong> (fuera de la isla), dormir unas horas y pedir un par de taxis/bus directo a las 3:30 AM al aeropuerto.</p>
-                        </div>
+                    <div class="bg-stone-700 p-3 rounded mb-4">
+                        <strong class="block text-sm text-green-400">La Salvacion: 2 Taxis Terrestres</strong>
+                        <p class="text-xs text-stone-300 mt-2">Los taxis normales en Italia llevan maximo 4 personas. Teneis que reservar <strong>dos taxis</strong> el dia anterior (Cooperativa Artigiana Radiotaxi) para que os esperen a las <strong>03:30 AM</strong> en Piazzale Roma. Es una tarifa plana oficial de 40 euros por coche (80 euros en total). Cero estres.</p>
+                    </div>
+
+                    <div class="bg-stone-700 p-3 rounded">
+                        <strong class="block text-sm">Opcion "Yo quiero cama":</strong>
+                        <p class="text-xs text-stone-300 mt-2">Si pasais de estar deambulando de empalmada, pillad un Airbnb barato en <strong>Mestre</strong> (que es la zona de tierra firme de Venecia, muy cerca de la estacion de tren). Asi dejais ahi las maletas, dormis unas horitas y a las 3:30 pillais los taxis al aeropuerto.</p>
                     </div>
                 </div>
             </div>
@@ -266,30 +342,40 @@
 
         <section id="datos" class="section-hide">
             <div class="mb-8">
-                <h1 class="text-3xl font-bold mb-2">Análisis Logístico del Plan</h1>
-                <p class="text-stone-600 max-w-3xl">Resumen visual de cómo se distribuye nuestro tiempo durante los 5-6 días. Esto nos ayudará a mentalizarnos de que el primer día es duro, pero el resto es puro disfrute.</p>
+                <h1 class="text-3xl font-bold mb-2">Logistica y Mapa Interactivo</h1>
+                <p class="text-stone-600 max-w-3xl">Aqui teneis visualmente donde estan los alojamientos clave y las discotecas de Rimini para que decidais donde poner el campamento base.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h3 class="font-bold text-lg mb-4 text-center">Distribución de Actividades (Estimado)</h3>
-                    <div class="chart-container">
-                        <canvas id="timeChart"></canvas>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm h-full flex flex-col">
+                    <h3 class="font-bold text-lg mb-4 text-center text-stone-800">Mapa de Operaciones: Discotecas y Airbnbs</h3>
+                    <div class="flex gap-4 justify-center mb-3 text-xs">
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 bg-red-500 rounded-full inline-block"></span> Discotecas Top</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 bg-blue-500 rounded-full inline-block"></span> Mejores Airbnbs (7 Pax)</span>
                     </div>
+                    <div id="map" class="w-full flex-grow min-h-[400px] rounded-xl border border-stone-200"></div>
                 </div>
                 
                 <div class="space-y-4">
                     <div class="bg-white p-5 rounded-xl border-l-4 border-orange-500 shadow-sm">
-                        <h4 class="font-bold">Transporte (Trenes, Avión, Coche)</h4>
-                        <p class="text-sm text-stone-600 mt-1">El día 1 y 5 se llevan casi todo este tiempo. Alquilar en Venecia y dejar en Rímini tiene recargo (One-Way fee), asegurémonos de mirarlo al reservar los coches (Avis, Hertz, etc.).</p>
+                        <h4 class="font-bold">1. Dolomitas</h4>
+                        <p class="text-sm text-stone-600 mt-1">El sitio ideal para la primera noche. Subimos directo desde el aeropuerto. <strong>Clave:</strong> Aseguraros de que el alojamiento tenga parking para los 2 coches de alquiler.</p>
                     </div>
                     <div class="bg-white p-5 rounded-xl border-l-4 border-teal-500 shadow-sm">
-                        <h4 class="font-bold">Ocio Rímini (Playa/Fiesta)</h4>
-                        <p class="text-sm text-stone-600 mt-1">El núcleo del viaje. Al ser 7, reservemos los beach clubs o las entradas de las discotecas con unos días de antelación para asegurar mesa/acceso.</p>
+                        <h4 class="font-bold">2. El Campamento Base (Rimini Sur / Riccione)</h4>
+                        <p class="text-sm text-stone-600 mt-1">Como podeis ver en el mapa, los mejores alojamientos (azul) estan estrategicamente pegados a las discotecas (rojo). Por toda esa linea de costa pasa el bus nocturno, asi que no hace falta coger coche para nada.</p>
                     </div>
                     <div class="bg-white p-5 rounded-xl border-l-4 border-blue-400 shadow-sm">
-                        <h4 class="font-bold">Turismo Cultural</h4>
-                        <p class="text-sm text-stone-600 mt-1">Dolomitas express, centro histórico de Rímini y tarde intensa de caminata por los canales de Venecia.</p>
+                        <h4 class="font-bold">3. Venecia y Extraccion</h4>
+                        <p class="text-sm text-stone-600 mt-1">Acordaos: ni se os ocurra coger hotel dentro de los canales con maletas de 7 personas. O dormis en Mestre (tierra firme) o pasais la noche de empalmada tomando algo hasta recoger el equipaje a las 03:30 en Piazzale Roma.</p>
+                    </div>
+                    
+                    <div class="bg-white p-5 rounded-xl shadow-sm mt-4">
+                        <h4 class="font-bold text-sm text-center mb-2">A que le vamos a dedicar el tiempo</h4>
+                        <div class="chart-container" style="height: 200px;">
+                            <canvas id="timeChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -297,46 +383,105 @@
 
     </main>
 
-
-
     <script>
+        let map;
+        let mapInitialized = false;
+
+        function initMap() {
+            if (mapInitialized) return;
+            
+            // Inicializar Leaflet centrado en Rimini Sur / Riccione para ver bien los clubs y apartamentos
+            map = L.map('map').setView([44.020, 12.630], 12);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Iconos personalizados
+            var discoIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+            });
+            var aptIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+            });
+
+            // --- DISCOTECAS (Rojo) ---
+            L.marker([44.0381, 12.6094], {icon: discoIcon}).addTo(map)
+                .bindPopup('<b>Carnaby Club</b><br>3 pisos, super informal, hip-hop/EDM.');
+            L.marker([44.0256, 12.6186], {icon: discoIcon}).addTo(map)
+                .bindPopup('<b>Altromondo Studios</b><br>Mitica, fiesta de espuma y electronica.');
+            L.marker([43.9876, 12.6460], {icon: discoIcon}).addTo(map)
+                .bindPopup('<b>Cocorico (Riccione)</b><br>La famosa piramide de cristal. Techno puro.');
+            L.marker([43.9922, 12.6394], {icon: discoIcon}).addTo(map)
+                .bindPopup('<b>Peter Pan Club</b><br>Discoteca top en las colinas de Riccione. Elegante y House.');
+            L.marker([43.9745, 12.6640], {icon: discoIcon}).addTo(map)
+                .bindPopup('<b>Villa delle Rose</b><br>Espectacular al aire libre en Misano Adriatico.');
+
+            // --- AIRBNBS / ALOJAMIENTOS (Azul) ---
+            L.marker([44.0235, 12.6241], {icon: aptIcon}).addTo(map)
+                .bindPopup('<b>Nero D\'Avorio Appartamenti</b><br>Super cerca de Altromondo Studios. Capacidad para 7 y piscina.');
+            L.marker([44.0399, 12.6109], {icon: aptIcon}).addTo(map)
+                .bindPopup('<b>Appartamenti Leone (Rivazzurra)</b><br>Pegado al Carnaby Club. Muy buen precio.');
+            L.marker([44.0052, 12.6569], {icon: aptIcon}).addTo(map)
+                .bindPopup('<b>Residence Lungomare (Riccione)</b><br>A un paso de la playa de Riccione, genial para bajar a Cocorico.');
+            L.marker([44.0375, 12.6105], {icon: aptIcon}).addTo(map)
+                .bindPopup('<b>Residence Boheme</b><br>Genial para grupos, cerca de Carnaby.');
+            L.marker([44.0415, 12.6070], {icon: aptIcon}).addTo(map)
+                .bindPopup('<b>Residence Acqua Suite</b><br>Comodo, flexible y bien conectado.');
+            L.marker([44.0725, 12.5740], {icon: aptIcon}).addTo(map)
+                .bindPopup('<b>Residence Rimini Bay</b><br>Mas centrico en Rimini, ideal para el tardeo.');
+
+            mapInitialized = true;
+        }
+
         function switchTab(tabId, element) {
+            // Ocultar todas las secciones
             document.querySelectorAll('main > section').forEach(section => {
                 section.classList.remove('section-show');
                 section.classList.add('section-hide');
             });
 
+            // Resetear pestañas
             document.querySelectorAll('#nav-tabs button').forEach(btn => {
                 btn.classList.remove('tab-active', 'text-orange-600');
                 btn.classList.add('text-stone-500');
                 btn.style.borderBottom = "none";
             });
 
+            // Mostrar seccion activa
             document.getElementById(tabId).classList.remove('section-hide');
             document.getElementById(tabId).classList.add('section-show');
 
+            // Estilizar pestaña activa
             element.classList.remove('text-stone-500');
             element.classList.add('tab-active');
             element.style.borderBottom = "2px solid #ea580c";
+
+            // Si es la pestaña de datos, inicializar/refrescar el mapa
+            if(tabId === 'datos') {
+                setTimeout(() => {
+                    initMap();
+                    map.invalidateSize(); // Previene bugs visuales
+                }, 100);
+            }
         }
 
+        // Grafica Chart.js
         document.addEventListener("DOMContentLoaded", function() {
             const ctx = document.getElementById('timeChart').getContext('2d');
-            
             const chartData = [15, 45, 20, 20]; 
 
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Transporte (Coche/Tren)', 'Ocio y Playa (Rímini)', 'Turismo (Venecia/Dolomitas)', 'Fiesta / Noche'],
+                    labels: ['Transporte', 'Playa/Relax', 'Turismo', 'Fiesta'],
                     datasets: [{
                         data: chartData,
-                        backgroundColor: [
-                            '#f97316', 
-                            '#14b8a6', 
-                            '#3b82f6', 
-                            '#8b5cf6'  
-                        ],
+                        backgroundColor: ['#f97316', '#14b8a6', '#3b82f6', '#8b5cf6'],
                         borderWidth: 2,
                         borderColor: '#ffffff'
                     }]
@@ -345,27 +490,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                font: {
-                                    family: "'Inter', sans-serif"
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    label += context.raw + '% del tiempo activo';
-                                    return label;
-                                }
-                            }
-                        }
+                        legend: { position: 'right', labels: { font: { family: "'Inter', sans-serif", size: 10 } } }
                     },
                     cutout: '65%'
                 }
